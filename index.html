@@ -52,8 +52,20 @@ h1{margin:0;font-size:23px;font-weight:700}
 .sec{font-size:12.5px;font-weight:700;color:var(--hint);letter-spacing:.03em;text-transform:uppercase;padding-top:4px}
 .prow{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .pname{font-size:15px;font-weight:600}.pinfo{font-size:12.5px;color:var(--hint)}
-.att{min-width:108px;min-height:44px;padding:0 12px;border-radius:11px;border:1px solid var(--line);background:var(--card);font-weight:600;cursor:pointer}
-.att.on{background:var(--accent);border-color:var(--accent);color:var(--accentText)}
+.att{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 10px;border-radius:11px;border:1px solid var(--line);background:var(--card);color:#33434E;font-weight:600;cursor:pointer;white-space:nowrap}
+.att .box{width:22px;height:22px;border-radius:6px;border:2px solid #8FA1AD;display:inline-flex;align-items:center;justify-content:center;background:#fff}
+.att.on{border-color:var(--ok);background:var(--okBg);color:var(--okText)}
+.att.on .box{border-color:var(--ok);background:var(--ok);color:#fff}
+.prow.ok{border-color:#9FCDBB}
+.pst{font-size:12.5px;font-weight:600}.pst.ok{color:var(--okText)}.pst.need{color:var(--warnText)}
+.absbox{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.absbox input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font:inherit;color:var(--text);background:#fff}
+.abs{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#FBEBDD;border:1px solid #E3A47E;border-radius:10px;padding:8px 8px 8px 12px;font-size:14px;color:#8A3A12;font-weight:600}
+.sm2{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.today{display:flex;flex-direction:column;gap:4px;background:var(--accent);color:#fff;border-radius:14px;padding:14px 16px}
+.hw{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hwh{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:12px 14px;border:0;background:none;text-align:left;cursor:pointer}
+.hwi{display:flex;justify-content:space-between;gap:8px;padding:8px 14px;border-top:1px solid var(--line);font-size:13px}
 .up{align-self:flex-start;min-height:36px;padding:0 12px;border-radius:999px;border:1px dashed var(--ok);background:transparent;color:var(--okText);font-size:13px;font-weight:600;cursor:pointer}
 .up.on{border-style:solid;background:var(--okBg)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -85,8 +97,8 @@ textarea{width:100%;font:inherit;font-size:14px;color:var(--text);background:var
 var tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 var inTg = !!(tg && tg.platform && tg.platform !== 'unknown');
 if (inTg) { try { tg.ready(); tg.expand(); } catch(e){} try { tg.setHeaderColor('#FFFFFF'); tg.setBackgroundColor('#F7F9FB'); if (tg.setBottomBarColor) tg.setBottomBarColor('#FFFFFF'); } catch(e){} }
-var KEY = 'bora_instr_demo_v3';
-function fresh0(){ return { unav:{}, tab:'today', open:null, att:{ b_0:true, b_1:true }, raise:{}, skills:{}, saved:{}, grades:{}, notes:{}, fresh:false, notice:'' }; }
+var KEY = 'bora_instr_demo_v4';
+function fresh0(){ return { unav:{}, tab:'today', open:null, att:{ b_0:true, b_1:true }, raise:{}, skills:{}, saved:{}, grades:{}, notes:{}, fresh:false, notice:'', abs:[], absFrom:'', absTo:'', hOpen:{ 0:true } }; }
 var st = fresh0();
 try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); st = Object.assign(fresh0(), o, { open:null, notice:'' }); } } catch(e){}
 function persist(){ try { var c = Object.assign({}, st); delete c.notice; localStorage.setItem(KEY, JSON.stringify(c)); } catch(e){} }
@@ -154,12 +166,14 @@ function detailView(){
   h += '<div class="sec">Явка</div>';
   c.people.forEach(function(p,i){
     var key=c.id+'_'+i, isOn=!!st.att[key], g=grade(p), up=!!st.raise[key];
-    h += '<div class="prow"><div class="row"><div style="min-width:0;display:flex;flex-direction:column;gap:2px"><span class="pname">'+esc(p.name)+'</span><span class="pinfo">'+(g?'G'+g+' · ':'')+esc(p.info)+'</span></div>'
-      + '<button class="att'+(isOn?' on':'')+'" aria-pressed="'+isOn+'" data-h="'+on(function(){ haptic(); var a=Object.assign({},st.att); a[key]=!isOn; var r=Object.assign({},st.raise); if(isOn) delete r[key]; set({att:a,raise:r}); })+'">'+(isOn?'Пришёл':'Отметить')+'</button></div>';
-    if (isOn && started) {
+    var psk0 = st.skills[key] || {}, nSk = Object.keys(psk0).filter(function(k){ return psk0[k]; }).length;
+    h += '<div class="prow'+(isOn&&nSk?' ok':'')+'"><div class="row"><div style="min-width:0;display:flex;flex-direction:column;gap:2px"><span class="pname">'+esc(p.name)+'</span><span class="pinfo">'+(g?'G'+g+' · ':'')+esc(p.info)+'</span></div>'
+      + '<button class="att'+(isOn?' on':'')+'" role="checkbox" aria-checked="'+isOn+'" data-h="'+on(function(){ haptic(); var a=Object.assign({},st.att); a[key]=!isOn; var r=Object.assign({},st.raise); if(isOn) delete r[key]; set({att:a,raise:r}); })+'"><span class="box" aria-hidden="true">'+(isOn?CHECK:'')+'</span>Пришёл</button></div>';
+    if (started) h += '<span class="pst '+(isOn&&nSk?'ok':'need')+'">'+(isOn ? (nSk ? '✓ Явка и навыки отмечены' : 'Пришёл — отметь, что отработали') : (nSk ? 'Навыки есть — поставь «Пришёл»' : 'Не отмечен'))+'</span>';
+    if (started) {
       var psk = st.skills[key] || {};
       h += '<div style="border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px"><span class="sec" style="padding-top:0;font-size:11.5px">Что отработано</span><div class="chips">';
-      SKILLS.forEach(function(l){ h += '<button class="chip sm'+(psk[l]?' on':'')+'" aria-pressed="'+!!psk[l]+'" data-h="'+on(function(){ haptic(); var all=Object.assign({},st.skills), m=Object.assign({},psk); m[l]=!psk[l]; all[key]=m; set({skills:all}); })+'">'+l+'</button>'; });
+      SKILLS.forEach(function(l){ h += '<button class="chip sm'+(psk[l]?' on':'')+'" aria-pressed="'+!!psk[l]+'" data-h="'+on(function(){ haptic(); var all=Object.assign({},st.skills), m=Object.assign({},psk); m[l]=!psk[l]; all[key]=m; var a=Object.assign({},st.att); if (m[l]) a[key]=true; set({skills:all, att:a}); })+'">'+l+'</button>'; });
       h += '</div></div>';
     }
     if (isOn && started && g>0 && g<6 && !st.grades[p.name])
@@ -209,10 +223,24 @@ function weekView(){
   ];
   var outs = days.reduce(function(a,d){ return a + d.items.filter(function(i){ return !i.closed; }).length; }, 0);
   var h = '<div class="sub">31 августа — 6 сентября</div><h1>Неделя: '+outs+' выходов · '+(outs*2)+' ч</h1>'
-    + '<div class="info">Не можешь в какой-то день — отметь заранее «Не могу». Хэд увидит это в CRM, и тебя не поставят на выход.</div>';
+    + '<div class="info">Не можешь в какой-то день — отметь заранее «Не могу». Отпуск или несколько дней подряд — ниже, «С — по». Хэд увидит это в CRM, и тебя не поставят на выход.</div>';
+  var KEYS = ['2026-08-31','2026-09-01','2026-09-02','2026-09-03','2026-09-04','2026-09-05','2026-09-06'];
+  function dd(k){ return k ? k.slice(8,10)+'.'+k.slice(5,7) : ''; }
+  var abs = st.abs || [];
+  h += '<div class="absbox"><span style="font-weight:600">Отпуск / не могу несколько дней</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--hint)">С<input type="date" id="absFrom" min="2026-09-05" value="'+esc(st.absFrom||'')+'"></label><label style="display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--hint)">По<input type="date" id="absTo" min="2026-09-05" value="'+esc(st.absTo||'')+'"></label></div>'
+    + '<button class="main" style="min-height:44px;font-size:15px" data-h="'+on(function(){ haptic();
+        var f = st.absFrom, t = st.absTo || st.absFrom;
+        if (!f) return set({ notice:'Выбери, с какого дня не можешь.' });
+        if (t < f) return set({ notice:'«По» не может быть раньше «С».' });
+        if (f < '2026-09-05') return set({ notice:'Прошедшие дни отмечать не нужно — выбери даты с сегодняшнего.' });
+        var hit = KEYS.filter(function(k, i){ return k >= f && k <= t && days[i].items.some(function(x){ return !x.closed; }); });
+        set({ abs:(st.abs||[]).concat([{ from:f, to:t }]), absFrom:'', absTo:'', notice:'Отмечено: не можешь '+dd(f)+(t!==f?' — '+dd(t):'')+'. Хэд видит это в CRM, на эти дни тебя не поставят.'+(hit.length?' У тебя уже есть выходы '+hit.map(dd).join(', ')+' — хэду ушло уведомление, он найдёт замену.':'') });
+      })+'">Отметить «не могу» на эти дни</button>';
+  abs.forEach(function(a, j){ h += '<div class="abs"><span>Не могу: '+dd(a.from)+(a.to!==a.from?' — '+dd(a.to):'')+'</span><button class="sm2" data-h="'+on(function(){ haptic(); set({ abs:(st.abs||[]).filter(function(_,q){ return q!==j; }), notice:'Отметка снята — снова доступен.' }); })+'">Убрать</button></div>'; });
+  h += '</div>';
   var unav = st.unav || {};
   days.forEach(function(d, i){
-    var un = !!unav[i], has = d.items.some(function(x){ return !x.closed; }), dn = d.label.split(' ·')[0];
+    var un = !!unav[i] || abs.some(function(a){ return KEYS[i] >= a.from && KEYS[i] <= a.to; }), has = d.items.some(function(x){ return !x.closed; }), dn = d.label.split(' ·')[0];
     h += '<div class="row"><div class="dh'+(d.today?' today':'')+'">'+d.label+'</div><button class="unb'+(un?' on':'')+'" aria-pressed="'+un+'" data-h="'+on(function(){ haptic(); var u=Object.assign({},st.unav||{}); u[i]=!un; set({ unav:u, notice: un ? 'Снял отметку: '+dn+' снова доступен.' : ('Отмечено: '+dn+' не можешь.'+(has ? ' Но у тебя уже есть выход в этот день — хэду ушло уведомление, он найдёт замену.' : ' Хэд видит это в CRM.')) }); })+'">'+(un?'Не могу ✓':'Не могу')+'</button></div>';
     if (un) h += '<div class="unl">Отмечено: не можешь. Админ не поставит тебя на выход в этот день.</div>';
     if (!d.items.length) h += '<div class="note" style="padding:0 2px">Записей нет</div>';
@@ -221,9 +249,27 @@ function weekView(){
   return h;
 }
 function hoursView(){
-  function R(l,n,hh){ return '<div class="hrow"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">'+l+'</span><span class="ws">'+n+'</span></span><span class="mono">'+hh+' ч · '+fmt(hh*RATE_RSD)+' RSD</span></div>'; }
-  return '<div class="sub">Последние 4 недели · ставка '+fmt(RATE_RSD)+' RSD в час</div><h1>60 ч · '+fmt(60*RATE_RSD)+' RSD</h1><div class="sub">Грейд инструктора: G5</div>'
-    + R('31 августа — 6 сентября','9 выходов · неделя идёт',18) + R('24–30 августа','7 выходов',14) + R('17–23 августа','8 выходов',16) + R('10–16 августа','6 выходов',12)
+  function W(day,time,product,ppl,hh,stt){ return { day:day, time:time, product:product, ppl:ppl, h:hh, st:stt||'done' }; }
+  var weeks = [
+    { label:'31 августа — 6 сентября', items:[W('Пн 31.08','18:00–20:00','Training Melges 20',3,2),W('Ср 02.09','18:00–20:00','Training Melges 20',2,2),W('Чт 03.09','18:00–20:00','Training for beginners',3,2),W('Пт 04.09','18:00–20:00','Training Melges 20',4,2),W('Сб 05.09','08:00–10:00','Training Melges 20',3,2),W('Сб 05.09','13:00–15:00','Training for beginners',2,2),W('Сб 05.09','15:30–17:30','Training Melges 20',4,2,'plan'),W('Сб 05.09','17:30–19:30','Training Melges 20',st.fresh?1:0,2,'plan'),W('Вс 06.09','13:00–15:00','Training Melges 20',1,2,'closed')] },
+    { label:'24–30 августа', items:[W('Пн 24.08','18:00–20:00','Training Melges 20',3,2),W('Ср 26.08','18:00–20:00','Training Melges 20',4,2),W('Чт 27.08','18:00–20:00','Training for beginners',2,2),W('Пт 28.08','18:00–20:00','Training Melges 20',3,2),W('Сб 29.08','10:00–12:00','Training + breakfast',4,2),W('Сб 29.08','15:30–17:30','Training Melges 20',4,2),W('Вс 30.08','10:30–12:30','FUN RACE',4,2)] },
+    { label:'17–23 августа', items:[W('Пн 17.08','18:00–20:00','Training Melges 20',2,2),W('Вт 18.08','18:00–20:00','Training Melges 20',3,2),W('Ср 19.08','18:00–20:00','Training for beginners',3,2),W('Чт 20.08','18:00–20:00','Training Melges 20',4,2),W('Пт 21.08','18:00–20:00','Sunset training',3,2),W('Сб 22.08','10:00–12:00','Training + breakfast',4,2),W('Сб 22.08','13:00–15:00','Training Melges 20',2,2),W('Вс 23.08','10:30–12:30','FUN RACE',4,2)] },
+    { label:'10–16 августа', items:[W('Пн 10.08','18:00–20:00','Training Melges 20',3,2),W('Ср 12.08','18:00–20:00','Training Melges 20',2,2),W('Чт 13.08','18:00–20:00','Training for beginners',4,2),W('Сб 15.08','10:00–12:00','Training + breakfast',3,2),W('Сб 15.08','15:30–17:30','Training Melges 20',4,2),W('Вс 16.08','13:00–15:00','Training Melges 20',2,2)] }
+  ];
+  weeks[0].items = weeks[0].items.filter(function(x){ return x.ppl > 0; });
+  var total = 0, body = '';
+  weeks.forEach(function(w, j){
+    var done = w.items.filter(function(x){ return x.st==='done'; }), plan = w.items.filter(function(x){ return x.st==='plan'; });
+    var hh = done.reduce(function(a,x){ return a+x.h; }, 0); total += hh; var op = !!(st.hOpen||{})[j];
+    body += '<div class="hw"><button class="hwh" aria-expanded="'+op+'" data-h="'+on(function(){ haptic(); var o=Object.assign({},st.hOpen||{}); o[j]=!op; set({hOpen:o}); })+'"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">'+(op?'▾':'▸')+' '+w.label+'</span><span class="ws">'+done.length+' '+(done.length===1?'выход':(done.length<5?'выхода':'выходов'))+(plan.length?' · ещё '+plan.length+' впереди':'')+'</span></span><span class="mono" style="white-space:nowrap">'+hh+' ч · '+fmt(hh*RATE_RSD)+' RSD</span></button>';
+    if (op) w.items.forEach(function(x){ body += '<div class="hwi"><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-weight:600">'+x.day+' · '+x.time+'</span><span class="ws">'+esc(x.product)+' · '+x.ppl+' чел.</span></span><span style="white-space:nowrap;font-weight:600;color:'+(x.st==='done'?'var(--text)':'var(--hint)')+'">'+(x.st==='done'?x.h+' ч · '+fmt(x.h*RATE_RSD):(x.st==='closed'?'закрыт':'впереди'))+'</span></div>'; });
+    body += '</div>';
+  });
+  var td = weeks[0].items.filter(function(x){ return x.day==='Сб 05.09' && x.st==='done'; }), tp = weeks[0].items.filter(function(x){ return x.day==='Сб 05.09' && x.st==='plan'; });
+  var tH = td.reduce(function(a,x){ return a+x.h; },0), pH = tp.reduce(function(a,x){ return a+x.h; },0);
+  return '<div class="sub">Ставка '+fmt(RATE_RSD)+' RSD в час · грейд G5</div><h1>'+total+' ч · '+fmt(total*RATE_RSD)+' RSD</h1><div class="sub" style="font-size:13px">за 4 недели, по выходам, которые уже прошли</div>'
+    + '<div class="today"><span style="font-size:13px;opacity:.85">Сегодня, 5 сентября</span><span style="font-size:22px;font-weight:700">'+tH+' ч · '+fmt(tH*RATE_RSD)+' RSD</span><span style="font-size:13px;opacity:.9">'+td.length+' выхода прошли'+(tp.length?' · впереди ещё '+tp.length+' ('+pH+' ч · '+fmt(pH*RATE_RSD)+' RSD), если всё состоится':'')+'</span></div>'
+    + body
     + '<div class="note">Часы считаются по выходам, где отмечена явка. Ставку задаёт хэд в CRM (в динарах или фиксированно в евро). Расхождения — к админу.</div>'
     + '<button class="ghost" data-h="'+on(function(){ try{ localStorage.removeItem(KEY); }catch(e){} st=fresh0(); st.notice='Демо сброшено к началу дня.'; render(); })+'">Сбросить демо</button>';
 }
@@ -249,6 +295,7 @@ function render(){
   if (st.notice) { clearTimeout(render._t); var cur = st.notice; render._t = setTimeout(function(){ if (st.notice===cur) set({notice:''}); }, Math.max(8000, cur.length*90)); }
 }
 document.addEventListener('input', function(e){ if (e.target.id==='nt' && st.open) { st.notes = Object.assign({}, st.notes); st.notes[st.open] = e.target.value; persist(); } });
+document.addEventListener('change', function(e){ if (e.target.id==='absFrom') { var t = st.absTo && st.absTo < e.target.value ? e.target.value : st.absTo; set({ absFrom:e.target.value, absTo:t }); } if (e.target.id==='absTo') set({ absTo:e.target.value }); });
 document.addEventListener('click', function(e){ var b = e.target.closest('[data-h]'); if (b && H[b.getAttribute('data-h')]) H[b.getAttribute('data-h')](); });
 if (inTg) { try { tg.BackButton.onClick(goBack); tg.MainButton.onClick(save); } catch(e){} }
 render();
