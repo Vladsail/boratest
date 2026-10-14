@@ -58,6 +58,7 @@ h1{margin:0;font-size:23px;font-weight:700}
 .up.on{border-style:solid;background:var(--okBg)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:40px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:14px;cursor:pointer}
+.chip.sm{min-height:34px;padding:0 10px;font-size:13px}
 .chip.on{background:color-mix(in srgb,var(--accent) 16%,var(--card));border-color:var(--accent);color:var(--link);font-weight:600}
 textarea{width:100%;font:inherit;font-size:14px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;resize:none}
 .dh{font-size:13px;font-weight:700;color:var(--hint);padding:4px 2px 0}.dh.today{color:var(--link)}
@@ -84,7 +85,7 @@ textarea{width:100%;font:inherit;font-size:14px;color:var(--text);background:var
 var tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 var inTg = !!(tg && tg.platform && tg.platform !== 'unknown');
 if (inTg) { try { tg.ready(); tg.expand(); } catch(e){} try { tg.setHeaderColor('#FFFFFF'); tg.setBackgroundColor('#F7F9FB'); if (tg.setBottomBarColor) tg.setBottomBarColor('#FFFFFF'); } catch(e){} }
-var KEY = 'bora_instr_demo_v2';
+var KEY = 'bora_instr_demo_v3';
 function fresh0(){ return { unav:{}, tab:'today', open:null, att:{ b_0:true, b_1:true }, raise:{}, skills:{}, saved:{}, grades:{}, notes:{}, fresh:false, notice:'' }; }
 var st = fresh0();
 try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); st = Object.assign(fresh0(), o, { open:null, notice:'' }); } } catch(e){}
@@ -103,7 +104,7 @@ function data(){
       { name:'Ольга В.', g:3, info:'14-я тренировка' },
       { name:'Сергей Т.', g:2, info:'4-я тренировка · разовая оплата' } ] },
     { id:'a', time:'10:00', end:'12:00', boat:'Лодка 1', product:'Training + breakfast', people:[] },
-    { id:'b', time:'13:00', end:'15:00', boat:'Лодка 2', product:'Training for beginners', adminAtt:'Маша', people:[
+    { id:'b', time:'13:00', end:'15:00', boat:'Лодка 2', product:'Training for beginners', adminAtt:'админ', people:[
       { name:'Анна П.', g:1, info:'6-я тренировка · абонемент, осталось 3' },
       { name:'Гость Анны П.', g:0, info:'Первый раз · без профиля' } ] },
     { id:'c', time:'15:30', end:'17:30', boat:'Лодка 1', product:'Training Melges 20', people:[
@@ -149,19 +150,29 @@ function detailView(){
   var started = c.time <= NOW, sk = st.skills[c.id] || {};
   var h = inTg ? '' : '<button class="back" data-h="'+on(goBack)+'">‹ Мои выходы</button>';
   h += '<div class="sub">'+c.time+'–'+c.end+' · '+c.boat+'</div><h1 style="font-size:21px">'+esc(c.product)+'</h1>';
-  if (c.adminAtt && st.saved[c.id]!=='full') h += '<div class="info">Явку отметил админ ('+c.adminAtt+', 15:05). Проверь и отметь, что отработали — это можешь сделать только ты.</div>';
+  if (c.adminAtt && st.saved[c.id]!=='full') h += '<div class="info">Явку отметил админ (15:05). Проверь и отметь, что отработали — это можешь сделать только ты.</div>';
   h += '<div class="sec">Явка</div>';
   c.people.forEach(function(p,i){
     var key=c.id+'_'+i, isOn=!!st.att[key], g=grade(p), up=!!st.raise[key];
     h += '<div class="prow"><div class="row"><div style="min-width:0;display:flex;flex-direction:column;gap:2px"><span class="pname">'+esc(p.name)+'</span><span class="pinfo">'+(g?'G'+g+' · ':'')+esc(p.info)+'</span></div>'
       + '<button class="att'+(isOn?' on':'')+'" aria-pressed="'+isOn+'" data-h="'+on(function(){ haptic(); var a=Object.assign({},st.att); a[key]=!isOn; var r=Object.assign({},st.raise); if(isOn) delete r[key]; set({att:a,raise:r}); })+'">'+(isOn?'Пришёл':'Отметить')+'</button></div>';
+    if (isOn && started) {
+      var psk = st.skills[key] || {};
+      h += '<div style="border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px"><span class="sec" style="padding-top:0;font-size:11.5px">Что отработано</span><div class="chips">';
+      SKILLS.forEach(function(l){ h += '<button class="chip sm'+(psk[l]?' on':'')+'" aria-pressed="'+!!psk[l]+'" data-h="'+on(function(){ haptic(); var all=Object.assign({},st.skills), m=Object.assign({},psk); m[l]=!psk[l]; all[key]=m; set({skills:all}); })+'">'+l+'</button>'; });
+      h += '</div></div>';
+    }
     if (isOn && started && g>0 && g<6 && !st.grades[p.name])
       h += '<button class="up'+(up?' on':'')+'" aria-pressed="'+up+'" data-h="'+on(function(){ haptic(); var r=Object.assign({},st.raise); r[key]=!up; set({raise:r}); })+'">'+(up?'Будет G'+(g+1)+' после сохранения · отменить':'↑ Повысить до G'+(g+1))+'</button>';
     h += '</div>';
   });
-  h += '<div><div class="sec">Что отработали</div><div class="note" style="font-size:12.5px">Отмечаешь только ты — из этого складывается прогресс клиентов</div></div><div class="chips">';
-  SKILLS.forEach(function(l){ h += '<button class="chip'+(sk[l]?' on':'')+'" aria-pressed="'+!!sk[l]+'" data-h="'+on(function(){ haptic(); var all=Object.assign({},st.skills), m=Object.assign({},sk); m[l]=!sk[l]; all[c.id]=m; set({skills:all}); })+'">'+l+'</button>'; });
-  h += '</div><label class="sec" for="nt">Заметка для следующего инструктора</label><textarea id="nt" rows="3" placeholder="Например: Илья уверенно рулит, дальше — работа со спинакером">'+esc((st.notes||{})[c.id]||'')+'</textarea>';
+  var presentIdx = c.people.map(function(p,i){ return i; }).filter(function(i){ return st.att[c.id+'_'+i]; });
+  if (started && presentIdx.length > 1) {
+    h += '<div class="note" style="font-size:12.5px">Быстро отметить всем, кто пришёл:</div><div class="chips">';
+    SKILLS.forEach(function(l){ h += '<button class="chip sm" data-h="'+on(function(){ haptic(); var all=Object.assign({},st.skills); presentIdx.forEach(function(i){ var k2=c.id+'_'+i; var o=Object.assign({},all[k2]||{}); o[l]=true; all[k2]=o; }); set({skills:all}); })+'">+ '+l+'</button>'; });
+    h += '</div>';
+  }
+  h += '<div class="note" style="font-size:12.5px">Навыки отмечаешь только ты и по каждому отдельно — они попадают в карточку клиента («Прогресс»).</div><label class="sec" for="nt">Заметка для следующего инструктора</label><textarea id="nt" rows="3" placeholder="Например: Илья уверенно рулит, дальше — работа со спинакером">'+esc((st.notes||{})[c.id]||'')+'</textarea>';
   h += '<div class="note" style="text-align:center">'+(started?'Явка и «что отработали» — до конца дня':'Тренировка ещё не началась')+'</div>';
   if (!inTg) h += '<div class="savebar"><button class="main" data-h="'+on(save)+'">Сохранить</button></div>';
   return h;
@@ -170,11 +181,15 @@ function save(){
   var c = curSlot(); if (!c) return;
   var present = c.people.filter(function(p,i){ return st.att[c.id+'_'+i]; });
   if (!present.length){ try{ if(inTg) tg.HapticFeedback.notificationOccurred('error'); }catch(e){} set({ notice:'Отметь, кто пришёл. Если не пришёл никто — напиши админу.' }); return; }
-  var sk = st.skills[c.id] || {}, hasSk = Object.keys(sk).some(function(k){ return sk[k]; });
+  function skOf(i){ var o = st.skills[c.id+'_'+i] || {}; return Object.keys(o).filter(function(k){ return o[k]; }); }
+  var presentI = c.people.map(function(p,i){ return i; }).filter(function(i){ return st.att[c.id+'_'+i]; });
+  var missing = presentI.filter(function(i){ return !skOf(i).length; }).map(function(i){ return c.people[i].name; });
+  var hasSk = presentI.length > 0 && missing.length === 0;
+  var skLine = presentI.filter(function(i){ return skOf(i).length; }).map(function(i){ return c.people[i].name+': '+skOf(i).join(', ').toLowerCase(); }).join('; ');
   var grades=Object.assign({},st.grades), r=Object.assign({},st.raise), raised=[];
   c.people.forEach(function(p,i){ var key=c.id+'_'+i; if (r[key] && st.att[key]) { var g=grade(p)+1; grades[p.name]=g; raised.push(p.name+' → G'+g); } delete r[key]; });
   var saved=Object.assign({},st.saved); saved[c.id]=hasSk?'full':'att';
-  var msg = hasSk ? 'Сохранено: занятия списаны с абонементов, навыки ушли в карточки клиентов.' : 'Явка сохранена. «Что отработали» не отмечено — напомню в вечернем плане.';
+  var msg = hasSk ? 'Сохранено. Навыки ушли в карточки клиентов — '+skLine+'.' : 'Явка сохранена. Не отмечено, что отработали: '+missing.join(', ')+' — напомню в вечернем плане.';
   if (raised.length) msg += ' Грейд повышен: '+raised.join(', ')+' — клиенту ушло поздравление.';
   try{ if(inTg) tg.HapticFeedback.notificationOccurred('success'); }catch(e){}
   set({ saved:saved, grades:grades, raise:r, open:null, notice:msg }); window.scrollTo(0,0);
