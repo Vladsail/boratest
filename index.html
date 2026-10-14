@@ -6,21 +6,25 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Bora · инструктор (тест)</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:var(--tg-theme-secondary-bg-color,#F3F5F6);
-  --card:var(--tg-theme-bg-color,#FFFFFF);
-  --text:var(--tg-theme-text-color,#13212B);
-  --hint:var(--tg-theme-hint-color,#5B6B76);
-  --line:color-mix(in srgb,var(--hint) 35%,transparent);
-  --accent:var(--tg-theme-button-color,#0E4A6E);
-  --accentText:var(--tg-theme-button-text-color,#FFFFFF);
-  --link:var(--tg-theme-link-color,#0E4A6E);
+  /* Всегда светлая тема: тёмная тема Telegram рябила и утомляла глаза (отзыв 13.10.2026) */
+  color-scheme:light;
+  --bg:#F7F9FB;
+  --card:#FFFFFF;
+  --text:#13212B;
+  --hint:#5F6F7A;
+  --line:#DFE5EA;
+  --accent:#1B6491;
+  --accentText:#FFFFFF;
+  --link:#1B6491;
   --warn:#C9701E;--warnBg:rgba(217,130,43,.12);--warnText:#B5600F;
   --ok:#1F7A5C;--okBg:rgba(31,122,92,.10);--okText:#1F7A5C;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;font-size:15px;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;font-size:15px;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit}
 .app{min-height:100vh;display:flex;flex-direction:column}
 .test{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:center;padding:5px;background:var(--warnBg);color:var(--warnText)}
@@ -33,8 +37,12 @@ h1{margin:0;font-size:23px;font-weight:700}
 .card.done{background:linear-gradient(var(--okBg),var(--okBg)),var(--card)}
 .card.fresh{border:2px solid var(--ok);padding:13px 14px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.time{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:18px;font-weight:700}
-.prod{font-size:16px;font-weight:600}
+.time{font-size:24px;font-weight:700;letter-spacing:-0.01em}
+.prod{font-size:17px;font-weight:600}
+.fill{font-size:15px;font-weight:700;white-space:nowrap}
+.unb{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:600;color:var(--hint);cursor:pointer}
+.unb.on{background:#FBEBDD;border-color:#E3A47E;color:#8A3A12}
+.unl{font-size:12.5px;color:#8A3A12;font-weight:600;padding:0 2px}
 .tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--link)}
 .mark{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600}
 .mark.need{color:var(--warnText)}.mark.done,.mark.fresh{color:var(--okText)}.mark.next{color:var(--link)}
@@ -57,7 +65,7 @@ textarea{width:100%;font:inherit;font-size:14px;color:var(--text);background:var
 .wi.closed{border-style:dashed;opacity:.8}.wi.closed .ws{color:var(--warnText);font-weight:600}
 .ws{font-size:12.5px;color:var(--hint)}
 .hrow{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:700}
+.mono{font-weight:700}
 .main{width:100%;min-height:50px;border:0;border-radius:12px;background:var(--accent);color:var(--accentText);font-size:16px;font-weight:600;cursor:pointer}
 .ghost{min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer;font-weight:600}
 .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
@@ -75,9 +83,9 @@ textarea{width:100%;font:inherit;font-size:14px;color:var(--text);background:var
 (function(){
 var tg = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData !== undefined ? window.Telegram.WebApp : null;
 var inTg = !!(tg && tg.platform && tg.platform !== 'unknown');
-if (inTg) { try { tg.ready(); tg.expand(); } catch(e){} }
-var KEY = 'bora_instr_demo_v1';
-function fresh0(){ return { tab:'today', open:null, att:{ b_0:true, b_1:true }, raise:{}, skills:{}, saved:{}, grades:{}, notes:{}, fresh:false, notice:'' }; }
+if (inTg) { try { tg.ready(); tg.expand(); } catch(e){} try { tg.setHeaderColor('#FFFFFF'); tg.setBackgroundColor('#F7F9FB'); if (tg.setBottomBarColor) tg.setBottomBarColor('#FFFFFF'); } catch(e){} }
+var KEY = 'bora_instr_demo_v2';
+function fresh0(){ return { unav:{}, tab:'today', open:null, att:{ b_0:true, b_1:true }, raise:{}, skills:{}, saved:{}, grades:{}, notes:{}, fresh:false, notice:'' }; }
 var st = fresh0();
 try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); st = Object.assign(fresh0(), o, { open:null, notice:'' }); } } catch(e){}
 function persist(){ try { var c = Object.assign({}, st); delete c.notice; localStorage.setItem(KEY, JSON.stringify(c)); } catch(e){} }
@@ -86,7 +94,7 @@ function haptic(t){ try { if (inTg) tg.HapticFeedback.impactOccurred(t||'light')
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 var userName = 'Вит';
 try { if (inTg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) userName = tg.initDataUnsafe.user.first_name; } catch(e){}
-var NOW = '15:10', RATE = 117.4;
+var NOW = '15:10', RATE_RSD = 1850;
 var SKILLS = ['Оверштаг','Фордевинд','Рулевой','Работа с гротом','Спинакер','Старт','Швартовка'];
 function data(){
   return [
@@ -128,8 +136,7 @@ function listView(){
     else if (x.id===nextId){ cls+=' next'; mark='Следующий'; mc+=' next'; }
     h += '<button class="'+cls+'" data-h="'+on(function(){ haptic(); set({ open:x.id }); window.scrollTo(0,0); })+'">'
       + '<span class="row"><span class="time">'+x.time+'</span><span class="sub" style="font-size:13px">'+x.boat+'</span></span>'
-      + '<span class="prod">'+esc(x.product)+'</span>'
-      + '<span class="row" style="justify-content:flex-start"><span class="tag">Тренировка</span><span style="font-size:13px">'+x.people.length+' из 4 записаны</span></span>'
+      + '<span class="row" style="align-items:baseline"><span class="prod">'+esc(x.product)+'</span><span class="fill">'+x.people.length+' из 4</span></span>'
       + (mark ? '<span class="'+mc+'">'+(done?CHECK:'')+mark+'</span>' : '')
       + '</button>';
   });
@@ -186,19 +193,23 @@ function weekView(){
     { label:'Вс, 6 сентября', items:[{ time:'13:00', product:'Training Melges 20', sub:'Закрыт админом · погода', closed:true }] }
   ];
   var outs = days.reduce(function(a,d){ return a + d.items.filter(function(i){ return !i.closed; }).length; }, 0);
-  var h = '<div class="sub">31 августа — 6 сентября</div><h1>Неделя: '+outs+' выходов · '+(outs*2)+' ч</h1>';
-  days.forEach(function(d){
-    h += '<div class="dh'+(d.today?' today':'')+'">'+d.label+'</div>';
+  var h = '<div class="sub">31 августа — 6 сентября</div><h1>Неделя: '+outs+' выходов · '+(outs*2)+' ч</h1>'
+    + '<div class="info">Не можешь в какой-то день — отметь заранее «Не могу». Хэд увидит это в CRM, и тебя не поставят на выход.</div>';
+  var unav = st.unav || {};
+  days.forEach(function(d, i){
+    var un = !!unav[i], has = d.items.some(function(x){ return !x.closed; }), dn = d.label.split(' ·')[0];
+    h += '<div class="row"><div class="dh'+(d.today?' today':'')+'">'+d.label+'</div><button class="unb'+(un?' on':'')+'" aria-pressed="'+un+'" data-h="'+on(function(){ haptic(); var u=Object.assign({},st.unav||{}); u[i]=!un; set({ unav:u, notice: un ? 'Снял отметку: '+dn+' снова доступен.' : ('Отмечено: '+dn+' не можешь.'+(has ? ' Но у тебя уже есть выход в этот день — хэду ушло уведомление, он найдёт замену.' : ' Хэд видит это в CRM.')) }); })+'">'+(un?'Не могу ✓':'Не могу')+'</button></div>';
+    if (un) h += '<div class="unl">Отмечено: не можешь. Админ не поставит тебя на выход в этот день.</div>';
     if (!d.items.length) h += '<div class="note" style="padding:0 2px">Записей нет</div>';
     d.items.forEach(function(x){ h += '<div class="wi'+(x.closed?' closed':'')+'"><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:600">'+esc(x.product)+'</span><span class="ws">'+esc(x.sub)+'</span></span><span class="mono">'+x.time+'</span></div>'; });
   });
   return h;
 }
 function hoursView(){
-  function R(l,n,hh){ return '<div class="hrow"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">'+l+'</span><span class="ws">'+n+'</span></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="mono">'+hh+' ч · '+(hh*15)+' €</span><span class="ws">≈ '+fmt(hh*15*RATE)+' RSD</span></span></div>'; }
-  return '<div class="sub">Последние 4 недели · ставка 15 € в час</div><h1>60 ч · 900 €</h1><div style="font-weight:600">≈ '+fmt(900*RATE)+' RSD</div><div class="sub">Грейд инструктора: G5</div>'
+  function R(l,n,hh){ return '<div class="hrow"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">'+l+'</span><span class="ws">'+n+'</span></span><span class="mono">'+hh+' ч · '+fmt(hh*RATE_RSD)+' RSD</span></div>'; }
+  return '<div class="sub">Последние 4 недели · ставка '+fmt(RATE_RSD)+' RSD в час</div><h1>60 ч · '+fmt(60*RATE_RSD)+' RSD</h1><div class="sub">Грейд инструктора: G5</div>'
     + R('31 августа — 6 сентября','9 выходов · неделя идёт',18) + R('24–30 августа','7 выходов',14) + R('17–23 августа','8 выходов',16) + R('10–16 августа','6 выходов',12)
-    + '<div class="note">Часы считаются по выходам, где отмечена явка. Динары — по курсу из настроек базы (1 € = 117,4 RSD). Расхождения — к админу.</div>'
+    + '<div class="note">Часы считаются по выходам, где отмечена явка. Ставку задаёт хэд в CRM (в динарах или фиксированно в евро). Расхождения — к админу.</div>'
     + '<button class="ghost" data-h="'+on(function(){ try{ localStorage.removeItem(KEY); }catch(e){} st=fresh0(); st.notice='Демо сброшено к началу дня.'; render(); })+'">Сбросить демо</button>';
 }
 function render(){
@@ -216,7 +227,7 @@ function render(){
   app.innerHTML = h;
   if (inTg) {
     try {
-      if (st.open) { tg.BackButton.show(); tg.MainButton.setParams({ text:'Сохранить', is_visible:true, is_active:true }); }
+      if (st.open) { tg.BackButton.show(); tg.MainButton.setParams({ text:'Сохранить', color:'#1B6491', text_color:'#FFFFFF', is_visible:true, is_active:true }); }
       else { tg.BackButton.hide(); tg.MainButton.hide(); }
     } catch(e){}
   }
